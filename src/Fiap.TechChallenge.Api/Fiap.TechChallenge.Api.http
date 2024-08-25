@@ -1,0 +1,6 @@
+@Fiap.TechChallenge.Api_HostAddress = https://localhost:7010
+
+GET {{Fiap.TechChallenge.Api_HostAddress}}/healthcheck/
+Accept: application/json
+
+###

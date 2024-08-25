@@ -1,0 +1,79 @@
+name: "fiap-tech-challenge"
+services:
+  contacts-api:
+    container_name: contacts-api
+    image: contacts-api:1
+    environment:
+      - CONNECTION_STRING_DB_POSTGRES=Host=postgres;Port=5432;Username=postgres;Password=123456;Database=fiap_tech_challenge
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        version: 1
+    restart: always
+    ports:
+      - 8888:80
+    networks:
+      - fiap-tech-challenge-fase2_network
+    depends_on:
+      - postgres
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    volumes:
+      - prometheus-storage:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: always
+    ports:
+      - 9090:9090
+    networks:
+      - fiap-tech-challenge-fase2_network
+    depends_on:
+      - contacts-api
+  
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/config/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - fiap-tech-challenge-fase2_network
+    depends_on:
+      - prometheus
+      - postgres
+      - contacts-api
+      
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=fiap_tech_challenge
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+      - ./postgres/:/docker-entrypoint-initdb.d/
+    restart: always
+    ports:
+      - 5432:5432
+    networks:
+      - fiap-tech-challenge-fase2_network
+
+volumes:
+  postgres-db-volume:
+    external: false
+  grafana-storage:
+    external: false
+  prometheus-storage:
+    external: false
+  
+networks:
+  fiap-tech-challenge-fase2_network:
+    driver: bridge
