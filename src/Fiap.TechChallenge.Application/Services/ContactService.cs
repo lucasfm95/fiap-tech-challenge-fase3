@@ -1,3 +1,4 @@
+using Fiap.TechChallenge.Application.MessageBroker;
 using Fiap.TechChallenge.Application.Repositories;
 using Fiap.TechChallenge.Application.Services.Interfaces;
 using Fiap.TechChallenge.Domain.Entities;
@@ -6,7 +7,7 @@ using FluentValidation;
 
 namespace Fiap.TechChallenge.Application.Services;
 
-public class ContactService(IContactRepository contactRepository) : IContactService
+public class ContactService(IContactRepository contactRepository, IPublisherService publisherService) : IContactService
 {
     public async Task<List<Contact>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -29,8 +30,9 @@ public class ContactService(IContactRepository contactRepository) : IContactServ
         await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var contact = new Contact(request.Name,request.Email, request.PhoneNumber, request.Ddd);
-        var result = await contactRepository.CreateAsync(contact, cancellationToken);
-        return result;
+        //var result = await contactRepository.CreateAsync(contact, cancellationToken);
+        await publisherService.Publish(contact);
+        return contact;
     }
     
     public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)

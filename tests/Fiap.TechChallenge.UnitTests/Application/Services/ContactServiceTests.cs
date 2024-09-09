@@ -30,7 +30,7 @@ public class ContactServiceTests
         contactRepository.Setup(x => x.CreateAsync(It.IsAny<Contact>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(returnContact);
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
 
         // Act
         var result = await contactService.CreateAsync(contact, CancellationToken.None);
@@ -63,7 +63,7 @@ public class ContactServiceTests
         contactRepository.Setup(x => x.UpdateAsync(It.IsAny<Contact>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
 
         // Act
         var result = await contactService.UpdateAsync(contactPutRequest, CancellationToken.None);
@@ -84,7 +84,7 @@ public class ContactServiceTests
         contactRepository.Setup(c => c.DeleteAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
 
         //Act
         var result = await contactService.DeleteAsync(1, CancellationToken.None);
@@ -105,7 +105,7 @@ public class ContactServiceTests
         contactRepository.Setup(c => c.FindAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Contact>());
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
         
         var result = await contactService.GetAllAsync(CancellationToken.None);
         
@@ -122,7 +122,7 @@ public class ContactServiceTests
         contactRepository.Setup(c => c.FindAllByDddAsync(It.IsAny<short>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Contact>());
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
         
         var result = await contactService.GetAllByDddAsync(11, CancellationToken.None);
         
@@ -140,7 +140,7 @@ public class ContactServiceTests
         contactRepository.Setup(c => c.FindByIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(contact);
 
-        var contactService = new ContactService(contactRepository.Object);
+        var contactService = new ContactService(contactRepository.Object, null);
 
         var result = await contactService.GetByIdAsync(1, CancellationToken.None);
 
