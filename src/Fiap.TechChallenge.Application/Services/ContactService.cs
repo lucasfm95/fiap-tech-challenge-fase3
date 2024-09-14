@@ -31,7 +31,7 @@ public class ContactService(IContactRepository contactRepository, IPublisherServ
         
         var contact = new Contact(request.Name,request.Email, request.PhoneNumber, request.Ddd);
         //var result = await contactRepository.CreateAsync(contact, cancellationToken);
-        await publisherService.Publish(contact);
+        await publisherService.Publish(contact, cancellationToken);
         return contact;
     }
     

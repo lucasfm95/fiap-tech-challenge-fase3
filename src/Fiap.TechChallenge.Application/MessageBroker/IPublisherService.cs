@@ -4,5 +4,5 @@ namespace Fiap.TechChallenge.Application.MessageBroker;
 
 public interface IPublisherService
 {
-    Task Publish(Contact contact);
+    Task Publish(Contact contact, CancellationToken cancellationToken);
 }

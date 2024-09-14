@@ -1,13 +1,13 @@
-using System.Text.Json;
 using Fiap.TechChallenge.Application.MessageBroker;
 using Fiap.TechChallenge.Domain.Entities;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 
 namespace Fiap.TechChallenge.Infrastructure.MessageBroker;
 
-public class PublisherService(IBus bus) : IPublisherService
+public class PublisherService(IBus bus, ILogger<PublisherService> logger) : IPublisherService
 {
-    public async Task Publish(Contact contact)
+    public async Task Publish(Contact contact, CancellationToken cancellationToken)
     {
         try
         {
@@ -15,7 +15,7 @@ public class PublisherService(IBus bus) : IPublisherService
         
             var endpoint = await bus.GetSendEndpoint(new Uri($"queue:{queueName}"));
         
-            await endpoint.Send(contact);
+            await endpoint.Send(contact, cancellationToken);
         }
         catch (Exception e)
         {
