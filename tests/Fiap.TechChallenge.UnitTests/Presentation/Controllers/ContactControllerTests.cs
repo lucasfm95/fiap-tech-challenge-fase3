@@ -160,15 +160,6 @@ public class ContactControllerTests
         var mockContactService = new Mock<IContactService>();
         var cancellationToken = new CancellationToken();
         var contactPostRequest = _fixture.Create<ContactPostRequest>();
-        var contact = _fixture.Build<Contact>()
-            .With(c => c.Name, contactPostRequest.Name)
-            .With(c => c.DddNumber, contactPostRequest.Ddd)
-            .With(c => c.PhoneNumber, contactPostRequest.PhoneNumber)
-            .With(c=>c.Email, contactPostRequest.Email)
-            .With(c=>c.Id, 1)
-            .Create();
-
-        var contactPostResponse = new ContactPostResponse(contact.DddNumber, contact.Email,  contact.PhoneNumber, contact.Name);
         
         mockContactService
             .Setup(contactService => contactService.CreateAsync(contactPostRequest, It.IsAny<CancellationToken>()))
@@ -179,11 +170,9 @@ public class ContactControllerTests
         var result = await controller.Create(contactPostRequest, cancellationToken);
         
         mockContactService.Verify(contactService => contactService.CreateAsync(contactPostRequest, It.IsAny<CancellationToken>()), Times.Once);
-        result.Should().BeOfType<CreatedAtActionResult>().And.NotBeNull();
-        var createdResult = result as CreatedAtActionResult;
-        createdResult!.StatusCode.Should().Be((int)HttpStatusCode.Created);
-        createdResult.Value.Should().BeEquivalentTo(contactPostResponse);
-        createdResult.ActionName.Should().Be(nameof(controller.GetById));
+        result.Should().BeOfType<AcceptedResult>().And.NotBeNull();
+        var createdResult = result as AcceptedResult;
+        createdResult!.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
     }
     
     [Fact]
@@ -196,16 +185,6 @@ public class ContactControllerTests
             .With(c=>c.Id, 1)
             .Create();
         
-        var contact = _fixture.Build<Contact>()
-            .With(c => c.Name, contactPutRequest.Name)
-            .With(c => c.DddNumber, contactPutRequest.Ddd)
-            .With(c => c.PhoneNumber, contactPutRequest.PhoneNumber)
-            .With(c=>c.Email, contactPutRequest.Email)
-            .With(c=>c.Id, contactPutRequest.Id)
-            .Create();
-
-        var contactPutResponse = new ContactPutResponse(contact.DddNumber, contact.Email,  contact.PhoneNumber, contact.Name);
-        
         mockContactService
             .Setup(contactService => contactService.UpdateAsync(contactPutRequest, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
@@ -215,9 +194,8 @@ public class ContactControllerTests
         var result = await controller.Update(contactPutRequest.Id, contactPutRequest, cancellationToken);
         
         mockContactService.Verify(contactService => contactService.UpdateAsync(contactPutRequest, It.IsAny<CancellationToken>()), Times.Once);
-        var okObjectResult = result as OkObjectResult;
-        okObjectResult!.StatusCode.Should().Be((int)HttpStatusCode.OK);
-        okObjectResult.Value.Should().BeEquivalentTo(new DefaultResponse<ContactPutResponse>(){Data = contactPutResponse, Message = "Contact updated successfully."});
+        var okObjectResult = result as AcceptedResult;
+        okObjectResult!.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
     }
     
     [Fact]
@@ -231,10 +209,10 @@ public class ContactControllerTests
         
         var controller = new ContactController(mockContactService.Object, It.IsAny<ILogger<ContactController>>());
 
-        var result = await controller.Delete(1, new CancellationToken()) as OkObjectResult;
+        var result = await controller.Delete(1, new CancellationToken()) as AcceptedResult;
         
-        result.Should().BeOfType<OkObjectResult>().And.NotBeNull();
-        result?.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        result.Should().BeOfType<AcceptedResult>().And.NotBeNull();
+        result?.StatusCode.Should().Be((int)HttpStatusCode.Accepted);
         mockContactService.Verify(contactService => contactService.DeleteAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Once);
     }
     

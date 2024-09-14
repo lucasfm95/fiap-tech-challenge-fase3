@@ -25,6 +25,7 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
         var result = await contactService.GetAllAsync(cancellationToken);
         return Ok(result);
     }
+    
     /// <summary>
     /// Find contact by id
     /// </summary>
@@ -44,6 +45,7 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
         }
         return Ok(result);
     }
+    
     /// <summary>
     /// Find contacts by DDD
     /// </summary>
@@ -63,6 +65,7 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
         }
         return Ok(result);
     }
+    
     /// <summary>
     /// Create a new contact
     /// </summary>
@@ -81,6 +84,7 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
         
         return BadRequest(new DefaultResponse<ContactPostRequest> { Message = "Contact not created.", Data = request});
     }
+    
     /// <summary>
     /// Update contact by Id
     /// </summary>
@@ -114,8 +118,6 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
     [HttpDelete("{id:long}")]
     public async Task<IActionResult> Delete([FromRoute]long id, CancellationToken cancellationToken)
     {
-        var result = await contactService.DeleteAsync(id, cancellationToken);
-
         if (await contactService.DeleteAsync(id, cancellationToken))
         {
             return Accepted();
