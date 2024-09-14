@@ -9,7 +9,7 @@
       "applicationUrl": "http://localhost:5010",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "CONNECTION_STRING_DB_POSTGRES": "Host=localhost;Port=5432;Username=postgres;Password=123456;Database=fiap_tech_challenge",
+        "CONNECTION_STRING_DB_POSTGRES": "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=fiap_tech_challenge",
         "RUN_MIGRATIONS": "false",
         "MASS_TRANSIT_INSERT_QUEUE_NAME": "contact-insert-queue",
         "MASS_TRANSIT_UPDATE_QUEUE_NAME": "contact-update-queue",

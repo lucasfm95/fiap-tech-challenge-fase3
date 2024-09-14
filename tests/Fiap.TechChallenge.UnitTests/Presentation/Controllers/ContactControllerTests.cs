@@ -172,7 +172,7 @@ public class ContactControllerTests
         
         mockContactService
             .Setup(contactService => contactService.CreateAsync(contactPostRequest, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contact);
+            .ReturnsAsync(true);
 
         var controller = new ContactController(mockContactService.Object, It.IsAny<ILogger<ContactController>>());
 
@@ -208,7 +208,7 @@ public class ContactControllerTests
         
         mockContactService
             .Setup(contactService => contactService.UpdateAsync(contactPutRequest, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(contact);
+            .ReturnsAsync(true);
 
         var controller = new ContactController(mockContactService.Object, It.IsAny<ILogger<ContactController>>());
 

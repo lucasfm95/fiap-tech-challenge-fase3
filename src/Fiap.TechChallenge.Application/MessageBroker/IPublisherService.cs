@@ -5,7 +5,7 @@ namespace Fiap.TechChallenge.Application.MessageBroker;
 
 public interface IPublisherService
 {
-    Task SendToProcessInsertAsync(ContactInsertEvent contractInsertEvent, CancellationToken cancellationToken);
-    Task SendToProcessUpdateAsync(ContactUpdateEvent contractUpdateEvent, CancellationToken cancellationToken); 
-    Task SendToProcessDeleteAsync(ContactDeleteEvent contractDeleteEvent, CancellationToken cancellationToken);
+    Task<bool> SendToProcessInsertAsync(ContactInsertEvent contractInsertEvent, CancellationToken cancellationToken);
+    Task<bool> SendToProcessUpdateAsync(ContactUpdateEvent contractUpdateEvent, CancellationToken cancellationToken); 
+    Task<bool> SendToProcessDeleteAsync(ContactDeleteEvent contractDeleteEvent, CancellationToken cancellationToken);
 }

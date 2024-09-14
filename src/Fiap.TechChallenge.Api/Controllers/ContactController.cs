@@ -25,7 +25,6 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
         var result = await contactService.GetAllAsync(cancellationToken);
         return Ok(result);
     }
-    
     /// <summary>
     /// Find contact by id
     /// </summary>
@@ -75,31 +74,13 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
     [HttpPost]
     public async Task<IActionResult> Create([FromBody]ContactPostRequest request, CancellationToken cancellationToken)
     {
-        var result = await contactService.CreateAsync(request, cancellationToken);
-        var response = new ContactPostResponse(result.DddNumber, result.Email,  result.PhoneNumber, result.Name);
-        
-        return CreatedAtAction(nameof(GetById), new { id = result.Id }, response);
-
-    }
-    /// <summary>
-    /// Delete contact by id
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="cancellationToken"></param>
-    /// <response code="200">OK</response>
-    /// <response code="400">Bad request</response>
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete([FromRoute]long id, CancellationToken cancellationToken)
-    {
-        var result = await contactService.DeleteAsync(id, cancellationToken);
-        if (!result)
+        if (await contactService.CreateAsync(request, cancellationToken))
         {
-            logger.LogWarning("Contact with ID: {id} not found.", id);
-            return BadRequest(new DefaultResponse<Contact> { Message = $"Contact with ID: {id} not found."});
+            return Accepted();
         }
-        return Ok(new DefaultResponse<Contact> { Message = "Contact removed successfully."});
+        
+        return BadRequest(new DefaultResponse<ContactPostRequest> { Message = "Contact not created.", Data = request});
     }
-
     /// <summary>
     /// Update contact by Id
     /// </summary>
@@ -114,8 +95,32 @@ public class ContactController(IContactService contactService, ILogger<ContactCo
     public async Task<IActionResult> Update([FromRoute] long id, ContactPutRequest request, CancellationToken cancellationToken)
     {
         request.Id = id;
-        var result = await contactService.UpdateAsync(request, cancellationToken);
-        var response = new ContactPostResponse(result.DddNumber, result.Email,  result.PhoneNumber, result.Name);
-        return Ok(new DefaultResponse<ContactPostResponse> { Message = "Contact updated successfully.", Data = response});
+        
+        if (await contactService.UpdateAsync(request, cancellationToken))
+        {
+            return Accepted();
+        }
+        
+        return BadRequest(new DefaultResponse<ContactPutRequest> { Message = "Contact not updated.", Data = request });
+    }
+    
+    /// <summary>
+    /// Delete contact by id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <response code="200">OK</response>
+    /// <response code="400">Bad request</response>
+    [HttpDelete("{id:long}")]
+    public async Task<IActionResult> Delete([FromRoute]long id, CancellationToken cancellationToken)
+    {
+        var result = await contactService.DeleteAsync(id, cancellationToken);
+
+        if (await contactService.DeleteAsync(id, cancellationToken))
+        {
+            return Accepted();
+        }
+        
+        return BadRequest(new DefaultResponse<Contact> { Message = "Contact not deleted."});
     }
 }
