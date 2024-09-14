@@ -3,6 +3,7 @@ using Fiap.TechChallenge.Application.Repositories;
 using Fiap.TechChallenge.Application.Services.Interfaces;
 using Fiap.TechChallenge.Domain.Entities;
 using Fiap.TechChallenge.Domain.Request;
+using Fiap.TechChallenge.LibDomain.Events;
 using FluentValidation;
 
 namespace Fiap.TechChallenge.Application.Services;
@@ -29,10 +30,10 @@ public class ContactService(IContactRepository contactRepository, IPublisherServ
         var validator = new ContactPostRequestValidator();
         await validator.ValidateAndThrowAsync(request, cancellationToken);
         
-        var contact = new Contact(request.Name,request.Email, request.PhoneNumber, request.Ddd);
+        var contact = new ContactInsertEvent(request.Name,request.Email, request.PhoneNumber, request.Ddd);
         //var result = await contactRepository.CreateAsync(contact, cancellationToken);
-        await publisherService.Publish(contact, cancellationToken);
-        return contact;
+        await publisherService.SendToProcessInsertAsync(contact, cancellationToken);
+        return null;
     }
     
     public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
