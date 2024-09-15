@@ -11,22 +11,17 @@ var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 if (env != "IntegrationTests")
 {
-    builder.Services.AddHealthChecks()
-        .AddNpgSql(Environment.GetEnvironmentVariable("CONNECTION_STRING_DB_POSTGRES") ?? 
-                   throw new Exception("CONNECTION_STRING_DB_POSTGRES not found."));
+    builder.Services.AddHealthChecks().AddNpgSql(Environment.GetEnvironmentVariable("CONNECTION_STRING_DB_POSTGRES") 
+                                                 ?? throw new Exception("CONNECTION_STRING_DB_POSTGRES not found."));
+    builder.Services.RegisterMessageBroker();
 }
 
-builder.Services.AddDbContext<ContactDbContext>(options =>
-{
-    options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_DB_POSTGRES"));
-});
-
+builder.Services.AddDbContext<ContactDbContext>(options => 
+    options.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING_DB_POSTGRES")));
 builder.Services.RegisterApplicationServices();
 builder.Services.RegisterRepositories();
-builder.Services.RegisterMessageBroker();
 builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
+    .AddJsonOptions(options => options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger();
 builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
@@ -73,6 +68,5 @@ async Task RunMigration()
     var dbContext = scope.ServiceProvider.GetRequiredService<ContactDbContext>();
     await dbContext.Database.MigrateAsync();
 }
-public partial class Program
-{
-}
+
+public partial class Program;

@@ -34,14 +34,6 @@ public class UpdateContactsTests(CustomWebApplicationFactory factory)
         // Act
         var response = await client.PutAsJsonAsync($"api/contact/{contactPutRequest.Id}", contactPutRequest, cancellationTokenSource.Token);
         //Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        await using var scope = factory.Services.CreateAsyncScope();
-        var dbContext2 = scope.ServiceProvider.GetRequiredService<ContactDbContext>();
-        var savedContact = await dbContext2.Contacts.FindAsync(contactPutRequest.Id, cancellationTokenSource.Token);
-        savedContact.Should().NotBeNull();
-        savedContact!.PhoneNumber.Should().Be(contactPutRequest.PhoneNumber);
-        savedContact.Email.Should().Be(contactPutRequest.Email);
-        savedContact.DddNumber.Should().Be(contactPutRequest.Ddd);
-        savedContact.Name.Should().Be(contactPutRequest.Name);
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
 }
