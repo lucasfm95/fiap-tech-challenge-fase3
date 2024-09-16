@@ -9,8 +9,15 @@
       "applicationUrl": "http://localhost:5010",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "CONNECTION_STRING_DB_POSTGRES": "Host=localhost;Port=5432;Username=postgres;Password=123456;Database=fiap_tech_challenge",
-        "RUN_MIGRATIONS": "false"
+        "CONNECTION_STRING_DB_POSTGRES": "Host=localhost;Port=5432;Username=postgres;Password=admin;Database=fiap_tech_challenge",
+        "RUN_MIGRATIONS": "false",
+        "MASS_TRANSIT_INSERT_QUEUE_NAME": "contact-insert-queue",
+        "MASS_TRANSIT_UPDATE_QUEUE_NAME": "contact-update-queue",
+        "MASS_TRANSIT_DELETE_QUEUE_NAME": "contact-delete-queue",
+        "MASS_TRANSIT_HOST": "localhost",
+        "MASS_TRANSIT_PORT": "5673",
+        "MASS_TRANSIT_USERNAME": "admin",
+        "MASS_TRANSIT_PASSWORD": "admin"
       }
     },
     "https": {
@@ -22,7 +29,14 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CONNECTION_STRING_DB_POSTGRES": "Host=localhost;Port=5432;Username=postgres;Password=123456;Database=fiap_tech_challenge",
-        "RUN_MIGRATIONS": "false"
+        "RUN_MIGRATIONS": "false",
+        "MASS_TRANSIT_INSERT_QUEUE_NAME": "contact-insert-queue",
+        "MASS_TRANSIT_UPDATE_QUEUE_NAME": "contact-update-queue",
+        "MASS_TRANSIT_DELETE_QUEUE_NAME": "contact-delete-queue",
+        "MASS_TRANSIT_HOST": "localhost",
+        "MASS_TRANSIT_PORT": "5673",
+        "MASS_TRANSIT_USERNAME": "admin",
+        "MASS_TRANSIT_PASSWORD": "admin"
       }
     }
   }

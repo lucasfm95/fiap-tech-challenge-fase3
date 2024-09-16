@@ -24,10 +24,6 @@ public class DeleteContactsTests(CustomWebApplicationFactory factory)
         var response = await client.DeleteAsync($"api/contact/{contact.Id}", cancellationTokenSource.Token);
         
         //Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        await using var scope = factory.Services.CreateAsyncScope();
-        var dbContext2 = scope.ServiceProvider.GetRequiredService<ContactDbContext>();
-        var savedContact = await dbContext2.Contacts.FindAsync(contact.Id, cancellationTokenSource.Token);
-        savedContact.Should().BeNull();
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
     }
 }

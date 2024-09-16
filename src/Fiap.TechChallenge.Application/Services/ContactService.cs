@@ -1,12 +1,14 @@
+using Fiap.TechChallenge.Application.MessageBroker;
 using Fiap.TechChallenge.Application.Repositories;
 using Fiap.TechChallenge.Application.Services.Interfaces;
 using Fiap.TechChallenge.Domain.Entities;
 using Fiap.TechChallenge.Domain.Request;
+using Fiap.TechChallenge.LibDomain.Events;
 using FluentValidation;
 
 namespace Fiap.TechChallenge.Application.Services;
 
-public class ContactService(IContactRepository contactRepository) : IContactService
+public class ContactService(IContactRepository contactRepository, IPublisherService publisherService) : IContactService
 {
     public async Task<List<Contact>> GetAllAsync(CancellationToken cancellationToken)
     {
@@ -23,22 +25,17 @@ public class ContactService(IContactRepository contactRepository) : IContactServ
         return await contactRepository.FindByIdAsync(id, cancellationToken);
     }
     
-    public async Task<Contact> CreateAsync(ContactPostRequest request, CancellationToken cancellationToken)
+    public async Task<bool> CreateAsync(ContactPostRequest request, CancellationToken cancellationToken)
     {
         var validator = new ContactPostRequestValidator();
         await validator.ValidateAndThrowAsync(request, cancellationToken);
         
-        var contact = new Contact(request.Name,request.Email, request.PhoneNumber, request.Ddd);
-        var result = await contactRepository.CreateAsync(contact, cancellationToken);
-        return result;
+        var contactInsertEvent = new ContactInsertEvent(request.Name,request.Email, request.PhoneNumber, request.Ddd);
+        
+        return await publisherService.SendToProcessInsertAsync(contactInsertEvent, cancellationToken);
     }
     
-    public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
-    {
-       return await contactRepository.DeleteAsync(id, cancellationToken);
-    }
-
-    public async Task<Contact> UpdateAsync(ContactPutRequest request, CancellationToken cancellationToken)
+    public async Task<bool> UpdateAsync(ContactPutRequest request, CancellationToken cancellationToken)
     {
         var contact = await GetByIdAsync(request.Id, cancellationToken);
 
@@ -55,8 +52,22 @@ public class ContactService(IContactRepository contactRepository) : IContactServ
         contact.PhoneNumber = request.PhoneNumber;
         contact.DddNumber = request.Ddd;
         
-        await contactRepository.UpdateAsync(contact, cancellationToken);
+        var contactUpdateEvent = new ContactUpdateEvent( request.Name, request.Email, request.PhoneNumber, request.Ddd) { Id = request.Id };
         
-        return contact;
+        return await publisherService.SendToProcessUpdateAsync(contactUpdateEvent, cancellationToken);
+    }
+    
+    public async Task<bool> DeleteAsync(long id, CancellationToken cancellationToken)
+    {
+        var contact = await GetByIdAsync(id, cancellationToken);
+        
+        if (contact is null)
+        {
+            throw new ValidationException($"Contact with id {id} not found.");
+        }
+        
+        var contactDeleteEvent = new ContactDeleteEvent() { Id = id };
+        
+        return await publisherService.SendToProcessDeleteAsync(contactDeleteEvent, cancellationToken);
     }
 }
