@@ -16,8 +16,10 @@ services:
     networks:
       - fiap-tech-challenge_network
     depends_on:
-      - rabbitmq-mass-transit
-      - postgres
+      rabbitmq-mass-transit: 
+        condition: service_healthy
+      postgres:
+        condition: service_started
   
   contact-deleted-consumer-worker:
     container_name: contact-deleted-consumer
@@ -37,9 +39,12 @@ services:
     ports:
       - 8890:80
     depends_on:
-      - rabbitmq-mass-transit
-      - postgres
-      - contacts-api
+      rabbitmq-mass-transit: 
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      contacts-api:
+        condition: service_started
 
   rabbitmq-mass-transit:
     container_name: rabbitmq-mass-transit
@@ -47,6 +52,14 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    expose:
+     - 15672
+     - 5672
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 3s
+        timeout: 3s
+        retries: 5
     restart: unless-stopped
     networks:
       - fiap-tech-challenge_network
