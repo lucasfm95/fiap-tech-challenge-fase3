@@ -1,35 +1,71 @@
 name: "fiap-tech-challenge"
 services:
   contacts-api:
-    container_name: contacts-api
-    build:
-      context: ./
-      dockerfile: Dockerfile
-      args:
-        version: lastest
+    container_name: contact-api
+    image: lucasfm95/fiap-tech-challenge-fase3:latest
     environment:
-      - CONNECTION_STRING_DB_POSTGRES=Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
+      CONNECTION_STRING_DB_POSTGRES: Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
+      MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
+      MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
+      MASS_TRANSIT_DELETE_QUEUE_NAME: ${MASS_TRANSIT_DELETE_QUEUE_NAME}
+      MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
+      MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
     restart: unless-stopped
     ports:
       - 8080:80
     networks:
       - fiap-tech-challenge_network
     depends_on:
-      - postgres
-      - rabbitmq-mass-transit
-
-  rabbitmq-mass-transit:
-    container_name: "rabbitmq-mass-transit"
-    image: masstransit/rabbitmq
-    ports:
-      - "5673:5672"
-      - "15673:15672"
+      rabbitmq-mass-transit: 
+        condition: service_healthy
+      postgres:
+        condition: service_started
+  
+  contact-deleted-consumer-worker:
+    container_name: contact-deleted-consumer
+    image: lucasfm95/fiap-tech-challenge-delete-fase3:latest
+    environment:
+      MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
+      MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
+      MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
+      MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
+      MASS_TRANSIT_INSERT_QUEUE_NAME: ${MASS_TRANSIT_INSERT_QUEUE_NAME}
+      MASS_TRANSIT_UPDATE_QUEUE_NAME: ${MASS_TRANSIT_UPDATE_QUEUE_NAME}
+      MASS_TRANSIT_DELETE_QUEUE_NAME: ${MASS_TRANSIT_DELETE_QUEUE_NAME}
+      CONNECTION_STRING_DB_POSTGRES: Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
     restart: unless-stopped
     networks:
-      - "fiap-tech-challenge_network"
+      - fiap-tech-challenge_network
+    ports:
+      - 8890:80
+    depends_on:
+      rabbitmq-mass-transit: 
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      contacts-api:
+        condition: service_started
+
+  rabbitmq-mass-transit:
+    container_name: rabbitmq-mass-transit
+    image: masstransit/rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+    expose:
+     - 15672
+     - 5672
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 3s
+        timeout: 3s
+        retries: 5
+    restart: unless-stopped
+    networks:
+      - fiap-tech-challenge_network
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_USER: ${MASS_TRANSIT_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${MASS_TRANSIT_PASSWORD}
 
   prometheus:
     container_name: prometheus
@@ -62,6 +98,7 @@ services:
       - prometheus
       - postgres
       - contacts-api
+      - contact-deleted-consumer-worker
       
   postgres:
     container_name: postgres

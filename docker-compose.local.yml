@@ -1,0 +1,94 @@
+name: "fiap-tech-challenge"
+services:
+  contacts-api:
+    container_name: contacts-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        version: lastest
+    environment:
+      - CONNECTION_STRING_DB_POSTGRES=Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    networks:
+      - fiap-tech-challenge_network
+    depends_on:
+      - postgres
+      - rabbitmq-mass-transit
+
+  rabbitmq-mass-transit:
+    container_name: "rabbitmq-mass-transit"
+    image: masstransit/rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    restart: unless-stopped
+    networks:
+      - "fiap-tech-challenge_network"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    volumes:
+      - prometheus-storage:/prometheus
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    networks:
+      - fiap-tech-challenge_network
+    depends_on:
+      - contacts-api
+  
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/config/grafana.ini:/etc/grafana/grafana.ini
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    networks:
+      - fiap-tech-challenge_network
+    depends_on:
+      - prometheus
+      - postgres
+      - contacts-api
+      
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+      - ./postgres/:/docker-entrypoint-initdb.d/
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    networks:
+      - fiap-tech-challenge_network
+
+volumes:
+  postgres-db-volume:
+    external: false
+  grafana-storage:
+    external: false
+  prometheus-storage:
+    external: false
+  rabbitmq-data:
+    external: false
+  
+networks:
+  fiap-tech-challenge_network:
+    driver: bridge
