@@ -68,9 +68,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await _rabbitMqContainer.StartAsync();
     }
 
-    public new Task DisposeAsync()
+    public new async Task DisposeAsync()
     {
-        _rabbitMqContainer.DisposeAsync().AsTask();
-        return _postgreSqlContainer.StopAsync();
+        await _rabbitMqContainer.StopAsync();
+        await _postgreSqlContainer.StopAsync();
     }
 }

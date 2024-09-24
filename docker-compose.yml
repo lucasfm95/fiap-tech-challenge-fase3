@@ -8,6 +8,8 @@ services:
       MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
       MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
       MASS_TRANSIT_DELETE_QUEUE_NAME: ${MASS_TRANSIT_DELETE_QUEUE_NAME}
+      MASS_TRANSIT_INSERT_QUEUE_NAME: ${MASS_TRANSIT_INSERT_QUEUE_NAME}
+      MASS_TRANSIT_UPDATE_QUEUE_NAME: ${MASS_TRANSIT_UPDATE_QUEUE_NAME}
       MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
       MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
     restart: unless-stopped
@@ -29,8 +31,6 @@ services:
       MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
       MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
       MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
-      MASS_TRANSIT_INSERT_QUEUE_NAME: ${MASS_TRANSIT_INSERT_QUEUE_NAME}
-      MASS_TRANSIT_UPDATE_QUEUE_NAME: ${MASS_TRANSIT_UPDATE_QUEUE_NAME}
       MASS_TRANSIT_DELETE_QUEUE_NAME: ${MASS_TRANSIT_DELETE_QUEUE_NAME}
       CONNECTION_STRING_DB_POSTGRES: Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
     restart: unless-stopped
@@ -40,6 +40,29 @@ services:
       - 8890:80
     depends_on:
       rabbitmq-mass-transit: 
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      contacts-api:
+        condition: service_started
+        
+  contact-iserted-consumer-worker:
+    container_name: contact-inserted-consumer
+    image: lucasfm95/fiap-tech-challenge-insert-fase3:latest
+    environment:
+      MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
+      MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
+      MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
+      MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
+      MASS_TRANSIT_INSERT_QUEUE_NAME: ${MASS_TRANSIT_INSERT_QUEUE_NAME}
+      CONNECTION_STRING_DB_POSTGRES: Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
+    restart: unless-stopped
+    networks:
+      - fiap-tech-challenge_network
+    ports:
+      - 8891:80
+    depends_on:
+      rabbitmq-mass-transit:
         condition: service_healthy
       postgres:
         condition: service_started
@@ -129,3 +152,6 @@ volumes:
 networks:
   fiap-tech-challenge_network:
     driver: bridge
+    
+    
+    
