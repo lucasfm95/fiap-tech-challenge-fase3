@@ -23,8 +23,8 @@ services:
       postgres:
         condition: service_started
   
-  contact-deleted-consumer-worker:
-    container_name: contact-deleted-consumer
+  contact-delete-consumer-worker:
+    container_name: contact-delete-consumer
     image: lucasfm95/fiap-tech-challenge-delete-fase3:latest
     environment:
       MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
@@ -37,7 +37,7 @@ services:
     networks:
       - fiap-tech-challenge_network
     ports:
-      - 8890:80
+      - 8081:80
     depends_on:
       rabbitmq-mass-transit: 
         condition: service_healthy
@@ -46,8 +46,8 @@ services:
       contacts-api:
         condition: service_started
         
-  contact-iserted-consumer-worker:
-    container_name: contact-inserted-consumer
+  contact-insert-consumer-worker:
+    container_name: contact-insert-consumer
     image: lucasfm95/fiap-tech-challenge-insert-fase3:latest
     environment:
       MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
@@ -60,7 +60,30 @@ services:
     networks:
       - fiap-tech-challenge_network
     ports:
-      - 8891:80
+      - 8082:80
+    depends_on:
+      rabbitmq-mass-transit:
+        condition: service_healthy
+      postgres:
+        condition: service_started
+      contacts-api:
+        condition: service_started
+    
+  contact-update-consumer-worker:
+    container_name: contact-update-consumer
+    image: lucasfm95/fiap-tech-challenge-update-fase3:latest
+    environment:
+      MASS_TRANSIT_USERNAME: ${MASS_TRANSIT_USERNAME}
+      MASS_TRANSIT_PASSWORD: ${MASS_TRANSIT_PASSWORD}
+      MASS_TRANSIT_HOST: ${MASS_TRANSIT_HOST}
+      MASS_TRANSIT_PORT: ${MASS_TRANSIT_PORT}
+      MASS_TRANSIT_UPDATE_QUEUE_NAME: ${MASS_TRANSIT_UPDATE_QUEUE_NAME}
+      CONNECTION_STRING_DB_POSTGRES: Host=postgres;Port=5432;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};Database=${POSTGRES_DB}
+    restart: unless-stopped
+    networks:
+      - fiap-tech-challenge_network
+    ports:
+      - 8083:80
     depends_on:
       rabbitmq-mass-transit:
         condition: service_healthy
@@ -80,8 +103,8 @@ services:
      - 5672
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:15672"]
-        interval: 3s
-        timeout: 3s
+        interval: 5s
+        timeout: 5s
         retries: 5
     restart: unless-stopped
     networks:
@@ -103,6 +126,10 @@ services:
       - fiap-tech-challenge_network
     depends_on:
       - contacts-api
+      - contact-delete-consumer-worker
+      - contact-insert-consumer-worker
+      - contact-update-consumer-worker
+      
   
   grafana:
     container_name: grafana
@@ -121,7 +148,9 @@ services:
       - prometheus
       - postgres
       - contacts-api
-      - contact-deleted-consumer-worker
+      - contact-delete-consumer-worker
+      - contact-insert-consumer-worker
+      - contact-update-consumer-worker
       
   postgres:
     container_name: postgres
