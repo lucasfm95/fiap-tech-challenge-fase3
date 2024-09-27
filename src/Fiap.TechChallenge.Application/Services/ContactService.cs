@@ -10,6 +10,7 @@ namespace Fiap.TechChallenge.Application.Services;
 
 public class ContactService(IContactRepository contactRepository, IPublisherService publisherService) : IContactService
 {
+    
     public async Task<List<Contact>> GetAllAsync(CancellationToken cancellationToken)
     {
         return await contactRepository.FindAllAsync(cancellationToken);
@@ -31,6 +32,8 @@ public class ContactService(IContactRepository contactRepository, IPublisherServ
         await validator.ValidateAndThrowAsync(request, cancellationToken);
         
         var contactInsertEvent = new ContactInsertEvent(request.Name,request.Email, request.PhoneNumber, request.Ddd);
+        
+        MetricsUtils.InsertCounter.Inc();
         
         return await publisherService.SendToProcessInsertAsync(contactInsertEvent, cancellationToken);
     }
@@ -54,6 +57,8 @@ public class ContactService(IContactRepository contactRepository, IPublisherServ
         
         var contactUpdateEvent = new ContactUpdateEvent( request.Name, request.Email, request.PhoneNumber, request.Ddd) { Id = request.Id };
         
+        MetricsUtils.UpdateCounter.Inc();
+        
         return await publisherService.SendToProcessUpdateAsync(contactUpdateEvent, cancellationToken);
     }
     
@@ -67,6 +72,8 @@ public class ContactService(IContactRepository contactRepository, IPublisherServ
         }
         
         var contactDeleteEvent = new ContactDeleteEvent() { Id = id };
+        
+        MetricsUtils.DeleteCounter.Inc();
         
         return await publisherService.SendToProcessDeleteAsync(contactDeleteEvent, cancellationToken);
     }

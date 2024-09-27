@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="Fiap.TechChallenge.LibDomain" Version="1.0.0" />
+      <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
     </ItemGroup>
     
 </Project>

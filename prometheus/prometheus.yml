@@ -8,6 +8,24 @@ scrape_configs:
     static_configs:        
       - targets: ['contacts-api:80']
         
+  - job_name: 'contact-delete-consumer'
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'contact-delete-consumer:80' ]
+        
+  - job_name: 'contact-insert-consumer'
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'contact-insert-consumer:80' ]
+        
+  - job_name: 'contact-update-consumer'
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'contact-update-consumer:80' ]
+        
   - job_name: 'prometheus'
     scrape_interval: 5s
     static_configs:
