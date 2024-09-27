@@ -10,17 +10,18 @@ This is a .NET 8 project that provides a RESTful API for managing contacts. The 
 - **C#**: The primary programming language used in this project.
 - **ASP.NET Core**: A framework for building web applications.
 - **Entity Framework Core**: An object-relational mapper (ORM) that simplifies data access by letting you work with relational data using domain-specific objects.
-- **PostgreSQL**: The database used for persisting data.
+- **Postgres**: The database used for persisting and getting data.
+- **RabbitMQ**: A message broker that allows you to send and receive messages between distributed systems.
 - **FluentValidation**: A library for building strongly-typed validation rules.
 - **Prometheus**: is an open-source systems monitoring and alerting toolkit, used to get metrics about the app.
-- **Grafana**: is an open-source plataform for monitoring and observability, used to create the dashboards with Prometheus metrics. 
+- **Grafana**: is an open-source platform for monitoring and observability, used to create the dashboards with Prometheus metrics. 
 
 ## Project Structure
 
 - `src/Fiap.TechChallenge.Domain`: This project contains the domain entities and repositories interfaces.
 - `src/Fiap.TechChallenge.Application`: This project contains the application services and DTOs.
 - `src/Fiap.TechChallenge.Api`: This project is the API layer that exposes endpoints to interact with the application.
-- `src/Fiap.TechChallenge.Infrastructue`: This project contains the implementation of the repositories and the database context.
+- `src/Fiap.TechChallenge.Infrastructure`: This project contains the implementation of the repositories, the database context and publisher to the message broker.
 - `tests/Fiap.TechChallenge.Tests`: This project contains the unit tests for the application services.
 - `tests/Fiap.TechChallenge.IntegrationTests`: This project contains the integrations tests for the application services.
 
@@ -28,10 +29,9 @@ This is a .NET 8 project that provides a RESTful API for managing contacts. The 
 1. Clone the repository.
 2. Navigate to the root directory.
 3. Ensure Docker is installed on your machine.
-4. Run command `docker-compose up -d` in the terminal
-5. The API be avaible at `http://localhost:8888`
-6. The Grafana be avaible at `http://localhost:3000` and use the user admin and password admin.
-
+4. Run the command `docker-compose up -d` in the terminal
+5. The API will be available at `http://localhost:8888`
+6. The Grafana will be available at `http://localhost:3000` and use the user admin and password admin.
 
 ## Getting Started With local app
 1. Clone the repository.
