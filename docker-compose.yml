@@ -130,7 +130,6 @@ services:
       - contact-insert-consumer-worker
       - contact-update-consumer-worker
       
-  
   grafana:
     container_name: grafana
     image: grafana/grafana
